@@ -3,16 +3,58 @@
 import React, { useState } from 'react';
 import Image from "next/image";
 
-// Component that displays the list of available scenarios on the left side
-const ScenarioPanel = () => (
+// Define a type for messages
+interface Message {
+  text: string;
+  isUser: boolean;
+}
+
+// Define a type for scenario messages
+interface ScenarioMessages {
+  [key: string]: Message[];
+}
+
+// Root component that combines ScenarioPanel and ChatArea
+const App = () => {
+  // State for managing the current scenario
+  const [currentScenario, setCurrentScenario] = useState('Offer Special Promotions');
+
+  // State for managing messages for each scenario
+  const scenarioMessages: ScenarioMessages = {
+    'Offer Special Promotions': [
+      { text: "Hello", isUser: false },
+      { text: "Hi there! I'm thinking of upgrading my plan. What can you offer me?", isUser: true }
+    ],
+    'Highlight the Value': [
+      { text: "Welcome! Let's discuss the value of our services.", isUser: false },
+      { text: "Sure, what are the key benefits?", isUser: true }
+    ]
+  };
+
+  return (
+    <div className="flex h-screen font-sans">
+      <ScenarioPanel setCurrentScenario={setCurrentScenario} />
+      <ChatArea currentScenario={currentScenario} scenarioMessages={scenarioMessages} />
+    </div>
+  );
+};
+
+// Update ScenarioPanel to accept setCurrentScenario as a prop
+const ScenarioPanel = ({ setCurrentScenario }: { setCurrentScenario: React.Dispatch<React.SetStateAction<string>> }) => (
   <div className="w-1/4 bg-black text-white p-6 border-r border-gray-800">
     <h2 className="text-xl font-semibold mb-6 text-gray-100">Scenarios</h2>
     <div className="space-y-3">
-      <div className="p-4 bg-black rounded-lg border border-gray-800 hover:border-gray-600 transition-all duration-200 shadow-sm hover:shadow-md">
+      <div 
+        className="p-4 bg-black rounded-lg border border-gray-800 hover:border-gray-600 transition-all duration-200 shadow-sm hover:shadow-md"
+        onClick={() => setCurrentScenario('Offer Special Promotions')}
+      >
         <h3 className="font-medium text-gray-200 mb-2">Offer Special Promotions</h3>
         <p className="text-sm text-gray-400 leading-relaxed">Offer promotions, send more conversions, and mynically.</p>
       </div>
-      <div className="p-4 bg-black rounded-lg border border-gray-800 hover:border-gray-600 transition-all duration-200 shadow-sm hover:shadow-md">
+      <div 
+        className="p-4 bg-black rounded-lg border border-gray-800 hover:border-gray-600 transition-all duration-200 shadow-sm hover:shadow-md"
+        onClick={() => setCurrentScenario('Highlight the Value')}
+      >
         <h3 className="font-medium text-gray-200 mb-2">Highlight the Value</h3>
         <p className="text-sm text-gray-400 leading-relaxed">Focus on ongoing to increase performance.</p>
       </div>
@@ -21,20 +63,16 @@ const ScenarioPanel = () => (
   </div>
 );
 
-// Main chat interface component that handles messages and user input
-const ChatArea = () => {
-  // State for managing the input field text
+// Update ChatArea to accept currentScenario and scenarioMessages as props
+const ChatArea = ({ currentScenario, scenarioMessages }: { currentScenario: string, scenarioMessages: ScenarioMessages }) => {
   const [inputText, setInputText] = useState('');
-  
-  // State for managing chat messages
-  // Each message has: text (content) and isUser (whether sent by user)
-  const [messages, setMessages] = useState([
-    { text: "Hello", isUser: false },
-    { text: "Hi there! I'm thinking of upgrading my plan. What can you offer me?", isUser: true }
-  ]);
+  const [messages, setMessages] = useState<Message[]>(scenarioMessages[currentScenario]);
 
-  // Handler for sending new messages
-  // Adds the current input text to messages and clears the input
+  // Update messages when the current scenario changes
+  React.useEffect(() => {
+    setMessages(scenarioMessages[currentScenario]);
+  }, [currentScenario]);
+
   const handleSendMessage = () => {
     if (inputText.trim()) {
       setMessages([...messages, { text: inputText.trim(), isUser: true }]);
@@ -42,7 +80,6 @@ const ChatArea = () => {
     }
   };
 
-  // Enables sending messages with the Enter key
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSendMessage();
@@ -63,7 +100,7 @@ const ChatArea = () => {
           </p>
         </div>
         {/* Message list - maps through messages array and renders each message */}
-        {messages.map((message, index) => (
+        {messages.map((message: Message, index: number) => (
           <div key={index} className="mb-4 flex items-start">
             {!message.isUser && (
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-xs font-medium mr-3 shadow-md">
@@ -114,13 +151,5 @@ const ChatArea = () => {
     </div>
   );
 };
-
-// Root component that combines ScenarioPanel and ChatArea
-const App = () => (
-  <div className="flex h-screen font-sans">
-    <ScenarioPanel />
-    <ChatArea />
-  </div>
-);
 
 export default App;
