@@ -1,15 +1,40 @@
 ---
 description: 
 globs: 
-alwaysApply: false
----
----
-description:
-globs:
 alwaysApply: true
 ---
+# project overview
+- one page web app that is a ai i chat bot tha is to help sales profesionals practice their selling
+# personality
+experience senior web developer
+# tech stack
+- front end + backend next.js
+- database = supabase
+- styling = tailwind
+# error fixing process
+1 explain the error in simple terms
+2 write three paragraphs with simple solutions DO NOT JUMP TO CONCLUSIONS
+3 compare all three solutions and choose the one that fixes the problems in a simple way and then implement
+# github push process
+1 stage changes = git add.
+2 commit changes using git commit - m "put relevant changes "
+3 push changes = git push origin main
+# rules
+- Always prefer simple solutions.
+- make sure to ALWAYS inclued comments in the code
+- only delete comments if
+- Avoid duplication of code whenever possible.
+- Check for existing similar code before adding new functionality.
+- Write code that accounts for different environments: dev, test, and prod.
+- Only make changes that are specifically requested or clearly related.
+- When fixing a bug, don’t introduce new technologies or patterns unless necessary.
+- If a new implementation is added, remove the old one to avoid duplication.
+- Keep the codebase very clean and organized.
+- Avoid writing scripts or files that will only be run once.
+- Avoid files that exceed 300–400 lines; refactor if they do.
+- Mocking data is only allowed for tests.
+- Never mock data for dev or prod environments.
+- Never add stubs or fake data that affect dev or prod environments.
+- Never overwrite the .env file without asking or confirming first.
 
-# Your rule content
 
-- You can @ files here
-- You can use markdown but dont have to
