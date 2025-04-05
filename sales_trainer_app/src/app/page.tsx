@@ -22,7 +22,7 @@ const App = () => {
   // State for managing messages for each scenario
   const [scenarioMessages, setScenarioMessages] = useState<ScenarioMessages>({
     'Offer Special Promotions': [
-      { text: "Hello", isUser: false },
+      { text: "Hi! I'm an AI chatbot here to help you practice your selling skills! Get started by giving me your pitch.", isUser: false },
       { text: "Hi there! I'm thinking of upgrading my plan. What can you offer me?", isUser: true }
     ],
     'Highlight the Value': [
@@ -30,6 +30,12 @@ const App = () => {
       { text: "Sure, what are the key benefits?", isUser: true }
     ]
   });
+
+  // State for managing the visibility of the add scenario form
+  const [isFormVisible, setFormVisible] = useState(false);
+
+  // State for managing new scenario input
+  const [newScenario, setNewScenario] = useState({ title: '', description: '' });
 
   // Function to update messages for the current scenario
   const updateMessages = (newMessage: Message) => {
@@ -39,38 +45,81 @@ const App = () => {
     }));
   };
 
+  // Function to add a new scenario
+  const addNewScenario = () => {
+    if (newScenario.title.trim() && newScenario.description.trim()) {
+      setScenarioMessages(prevMessages => ({
+        ...prevMessages,
+        [newScenario.title]: [{ text: newScenario.description, isUser: false }]
+      }));
+      setFormVisible(false);
+      setNewScenario({ title: '', description: '' });
+    }
+  };
+
   return (
     <div className="flex h-screen font-sans">
-      <ScenarioPanel setCurrentScenario={setCurrentScenario} />
+      <ScenarioPanel 
+        setCurrentScenario={setCurrentScenario} 
+        setFormVisible={setFormVisible} 
+        scenarioMessages={scenarioMessages} 
+      />
       <ChatArea 
         currentScenario={currentScenario} 
         scenarioMessages={scenarioMessages} 
         updateMessages={updateMessages} 
       />
+      {isFormVisible && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-1/3">
+            <h2 className="text-xl font-semibold text-white mb-4">Add New Scenario</h2>
+            <input 
+              type="text" 
+              placeholder="Title" 
+              value={newScenario.title} 
+              onChange={(e) => setNewScenario({ ...newScenario, title: e.target.value })} 
+              className="w-full p-3 mb-4 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <textarea 
+              placeholder="Short Description" 
+              value={newScenario.description} 
+              onChange={(e) => setNewScenario({ ...newScenario, description: e.target.value })} 
+              className="w-full p-3 mb-4 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button 
+              onClick={addNewScenario} 
+              className="w-full p-3 bg-gradient-to-b from-gray-800 to-gray-900 text-gray-300 hover:text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md font-medium"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-// Update ScenarioPanel to accept setCurrentScenario as a prop
-const ScenarioPanel = ({ setCurrentScenario }: { setCurrentScenario: React.Dispatch<React.SetStateAction<string>> }) => (
+// Update ScenarioPanel to display the description
+const ScenarioPanel = ({ setCurrentScenario, setFormVisible, scenarioMessages }: { setCurrentScenario: React.Dispatch<React.SetStateAction<string>>, setFormVisible: React.Dispatch<React.SetStateAction<boolean>>, scenarioMessages: ScenarioMessages }) => (
   <div className="w-1/4 bg-black text-white p-6 border-r border-gray-800">
     <h2 className="text-xl font-semibold mb-6 text-gray-100">Scenarios</h2>
     <div className="space-y-3">
-      <div 
-        className="p-4 bg-black rounded-lg border border-gray-800 hover:border-gray-600 transition-all duration-200 shadow-sm hover:shadow-md"
-        onClick={() => setCurrentScenario('Offer Special Promotions')}
+      {Object.keys(scenarioMessages).map((scenario, index) => (
+        <div 
+          key={index}
+          className="p-4 bg-black rounded-lg border border-gray-800 hover:border-gray-600 transition-all duration-200 shadow-sm hover:shadow-md"
+          onClick={() => setCurrentScenario(scenario)}
+        >
+          <h3 className="font-medium text-gray-200 mb-2">{scenario}</h3>
+          <p className="text-sm text-gray-400 leading-relaxed">{scenarioMessages[scenario][0].text}</p>
+        </div>
+      ))}
+      <button 
+        onClick={() => setFormVisible(true)}
+        className="mt-4 p-3 bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg w-full text-center text-gray-300 hover:text-white transition-all duration-200 shadow-sm hover:shadow-md font-medium"
       >
-        <h3 className="font-medium text-gray-200 mb-2">Offer Special Promotions</h3>
-        <p className="text-sm text-gray-400 leading-relaxed">Offer promotions, send more conversions, and mynically.</p>
-      </div>
-      <div 
-        className="p-4 bg-black rounded-lg border border-gray-800 hover:border-gray-600 transition-all duration-200 shadow-sm hover:shadow-md"
-        onClick={() => setCurrentScenario('Highlight the Value')}
-      >
-        <h3 className="font-medium text-gray-200 mb-2">Highlight the Value</h3>
-        <p className="text-sm text-gray-400 leading-relaxed">Focus on ongoing to increase performance.</p>
-      </div>
-      <button className="mt-4 p-3 bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg w-full text-center text-gray-300 hover:text-white transition-all duration-200 shadow-sm hover:shadow-md font-medium">+ Add</button>
+        + Add
+      </button>
     </div>
   </div>
 );
