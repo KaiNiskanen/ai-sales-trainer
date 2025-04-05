@@ -20,7 +20,7 @@ const App = () => {
   const [currentScenario, setCurrentScenario] = useState('Offer Special Promotions');
 
   // State for managing messages for each scenario
-  const scenarioMessages: ScenarioMessages = {
+  const [scenarioMessages, setScenarioMessages] = useState<ScenarioMessages>({
     'Offer Special Promotions': [
       { text: "Hello", isUser: false },
       { text: "Hi there! I'm thinking of upgrading my plan. What can you offer me?", isUser: true }
@@ -29,12 +29,24 @@ const App = () => {
       { text: "Welcome! Let's discuss the value of our services.", isUser: false },
       { text: "Sure, what are the key benefits?", isUser: true }
     ]
+  });
+
+  // Function to update messages for the current scenario
+  const updateMessages = (newMessage: Message) => {
+    setScenarioMessages(prevMessages => ({
+      ...prevMessages,
+      [currentScenario]: [...prevMessages[currentScenario], newMessage]
+    }));
   };
 
   return (
     <div className="flex h-screen font-sans">
       <ScenarioPanel setCurrentScenario={setCurrentScenario} />
-      <ChatArea currentScenario={currentScenario} scenarioMessages={scenarioMessages} />
+      <ChatArea 
+        currentScenario={currentScenario} 
+        scenarioMessages={scenarioMessages} 
+        updateMessages={updateMessages} 
+      />
     </div>
   );
 };
@@ -63,19 +75,20 @@ const ScenarioPanel = ({ setCurrentScenario }: { setCurrentScenario: React.Dispa
   </div>
 );
 
-// Update ChatArea to accept currentScenario and scenarioMessages as props
-const ChatArea = ({ currentScenario, scenarioMessages }: { currentScenario: string, scenarioMessages: ScenarioMessages }) => {
+// Update ChatArea to accept currentScenario, scenarioMessages, and updateMessages as props
+const ChatArea = ({ currentScenario, scenarioMessages, updateMessages }: { currentScenario: string, scenarioMessages: ScenarioMessages, updateMessages: (newMessage: Message) => void }) => {
   const [inputText, setInputText] = useState('');
   const [messages, setMessages] = useState<Message[]>(scenarioMessages[currentScenario]);
 
   // Update messages when the current scenario changes
   React.useEffect(() => {
     setMessages(scenarioMessages[currentScenario]);
-  }, [currentScenario]);
+  }, [currentScenario, scenarioMessages]);
 
   const handleSendMessage = () => {
     if (inputText.trim()) {
-      setMessages([...messages, { text: inputText.trim(), isUser: true }]);
+      const newMessage = { text: inputText.trim(), isUser: true };
+      updateMessages(newMessage);
       setInputText('');
     }
   };
