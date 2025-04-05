@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from "next/image";
+import { processMessage } from '../utils/api'; // Import our kitchen function
 
 // Define a type for messages
 interface Message {
@@ -128,17 +129,41 @@ const ScenarioPanel = ({ setCurrentScenario, setFormVisible, scenarioMessages }:
 const ChatArea = ({ currentScenario, scenarioMessages, updateMessages }: { currentScenario: string, scenarioMessages: ScenarioMessages, updateMessages: (newMessage: Message) => void }) => {
   const [inputText, setInputText] = useState('');
   const [messages, setMessages] = useState<Message[]>(scenarioMessages[currentScenario]);
+  const [isLoading, setIsLoading] = useState(false); // New state for loading indicator
 
   // Update messages when the current scenario changes
   React.useEffect(() => {
     setMessages(scenarioMessages[currentScenario]);
   }, [currentScenario, scenarioMessages]);
 
-  const handleSendMessage = () => {
+  // This is like our waiter taking orders to the kitchen
+  const handleSendMessage = async () => {
     if (inputText.trim()) {
-      const newMessage = { text: inputText.trim(), isUser: true };
-      updateMessages(newMessage);
+      // First, show the customer's order in the chat
+      const userMessage = { text: inputText.trim(), isUser: true };
+      updateMessages(userMessage);
       setInputText('');
+
+      // Put up the "cooking in progress" sign
+      setIsLoading(true);
+
+      try {
+        // Send the order to our kitchen and wait for the response
+        const aiResponse = await processMessage(inputText, currentScenario);
+        
+        // Serve the response to the customer
+        updateMessages({ text: aiResponse, isUser: false });
+      } catch (error) {
+        // If something goes wrong in the kitchen
+        console.error('Error in kitchen:', error);
+        updateMessages({ 
+          text: "Sorry, I'm having trouble processing your message right now.", 
+          isUser: false 
+        });
+      } finally {
+        // Take down the "cooking in progress" sign
+        setIsLoading(false);
+      }
     }
   };
 
