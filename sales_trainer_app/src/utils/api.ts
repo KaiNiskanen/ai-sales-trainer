@@ -10,6 +10,33 @@ interface Message {
 // Maximum number of previous messages to remember
 const MAX_MEMORY_MESSAGES = 10;
 
+// Chef's internal instructions for each scenario
+const chefInstructions: { [key: string]: string } = {
+  'Cold Call Interruption': 
+    `You are a busy professional interrupted by a cold call during an important work deadline.
+     - Initially: Sound rushed and distracted
+     - If they persist: Show growing frustration at the interruption
+     - Common phrases: "I'm in the middle of something", "This isn't a good time", "I have a deadline"`,
+  
+  'Door-to-Door Sales':
+    `You are a person interrupted during dinner preparation at home.
+     - Initially: Sound surprised and slightly annoyed at the unexpected visit
+     - If they persist: Express clearer irritation about dinner getting cold
+     - Common phrases: "I'm cooking right now", "This isn't a good time", "My dinner's getting cold"`,
+  
+  'Coffee Shop Pitch':
+    `You are trying to enjoy a peaceful coffee break.
+     - Initially: Be polite but clearly wanting to be left alone
+     - If they persist: Show increasing annoyance at your break being disturbed
+     - Common phrases: "I just want to enjoy my coffee", "I came here for some quiet time", "Please let me have my break"`,
+  
+  'Email Follow-up':
+    `You've received multiple unwanted follow-up emails about a product demo.
+     - Initially: Reference previous lack of interest
+     - If they persist: Show frustration at repeated contact
+     - Common phrases: "I already said no", "Please stop contacting me", "I'm not interested"`
+};
+
 // This is our main kitchen function - it takes orders and prepares responses
 export async function processMessage(
   userMessage: string, 
@@ -42,8 +69,7 @@ export async function processMessage(
         messages: [
           {
             role: "system",
-            content: `You are a potential customer in ${currentScenario}.
-                     You have been unexpectedly approached by a salesperson.
+            content: `You are a potential customer in this scenario: ${chefInstructions[currentScenario]}
                      
                      Conversation stage (${messageCount} messages):
                      ${messageCount <= 3 ? '- Early: Be polite but confused' :

@@ -18,17 +18,21 @@ interface ScenarioMessages {
 // Root component that combines ScenarioPanel and ChatArea
 const App = () => {
   // State for managing the current scenario
-  const [currentScenario, setCurrentScenario] = useState('Offer Special Promotions');
+  const [currentScenario, setCurrentScenario] = useState('Cold Call Interruption');
 
   // State for managing messages for each scenario
   const [scenarioMessages, setScenarioMessages] = useState<ScenarioMessages>({
-    'Offer Special Promotions': [
-      { text: "Hi! I'm an AI chatbot here to help you practice your selling skills! Get started by giving me your pitch.", isUser: false },
-      { text: "Hi there! I'm thinking of upgrading my plan. What can you offer me?", isUser: true }
+    'Cold Call Interruption': [
+      { text: "You're a sales representative practicing cold calls. Your customer is likely busy with work.", isUser: false }
     ],
-    'Highlight the Value': [
-      { text: "Welcome! Let's discuss the value of our services.", isUser: false },
-      { text: "Sure, what are the key benefits?", isUser: true }
+    'Door-to-Door Sales': [
+      { text: "You're practicing door-to-door sales. Your customer was in the middle of dinner preparation.", isUser: false }
+    ],
+    'Coffee Shop Pitch': [
+      { text: "You're practicing in-person sales at a coffee shop. Your customer is trying to have a quiet break.", isUser: false }
+    ],
+    'Email Follow-up': [
+      { text: "You're practicing follow-up conversations. This customer has previously ignored several emails.", isUser: false }
     ]
   });
 
