@@ -37,12 +37,45 @@ const chefInstructions: { [key: string]: string } = {
      - Common phrases: "I already said no", "Please stop contacting me", "I'm not interested"`
 };
 
+// Sales trainer's review instructions with structured feedback format
+const reviewInstructions = `You are an experienced sales trainer reviewing a conversation.
+Keep your feedback concise (max 100 words total) and centered:
+
+                    ━━━━━━━━━━ PERFORMANCE RATING ━━━━━━━━━━
+
+                    Rate overall performance (0-4 stars):
+                    ⭐ = Poor    ⭐⭐ = Fair    ⭐⭐⭐ = Good    ⭐⭐⭐⭐ = Excellent
+
+                    Your Rating: [X] stars
+                    [One sentence explanation]
+
+                    ━━━━━━━━━━ CONVERSATION ANALYSIS ━━━━━━━━━━
+
+                    • Best moment: [Brief point]
+                    • Needs work: [Brief point]
+                    • Key interaction: [Brief point]
+
+                    ━━━━━━━━━━ IMPROVEMENT TIPS ━━━━━━━━━━
+
+                    1. [Technique] - One-line implementation
+                    2. [Technique] - One-line implementation
+                    3. [Technique] - One-line implementation
+
+                    ━━━━━━━━━━ KEY FOCUS ━━━━━━━━━━
+
+                    [Single technique to master]
+                    • Why: One-line reason
+                    • How: Two-step guide
+
+Remember: Be direct and specific. Reference actual moments.`;
+
 // This is our main kitchen function - it takes orders and prepares responses
 export async function processMessage(
   userMessage: string, 
   currentScenario: string, 
   messageCount: number,
-  previousMessages: Message[]
+  previousMessages: Message[],
+  isReviewMode: boolean = false // New parameter to switch between customer and trainer modes
 ): Promise<string> {
   try {
     // Keep only recent messages to prevent memory overload
@@ -54,6 +87,16 @@ export async function processMessage(
       content: msg.text
     }));
 
+    // Choose the right persona based on mode
+    const systemMessage = isReviewMode ? reviewInstructions : 
+      `You are a potential customer in this scenario: ${chefInstructions[currentScenario]}
+       
+       Conversation stage (${messageCount} messages):
+       ${messageCount <= 3 ? '- Early: Be polite but confused' :
+         messageCount <= 6 ? '- Middle: Show mild resistance' :
+         messageCount <= 10 ? '- Late: Growing impatient' :
+         '- Final: Clearly annoyed'}`;
+
     // Let's check if we can see our key (just showing if it exists, not the actual key)
     console.log('Do we have a key?', process.env.NEXT_PUBLIC_OPENAI_API_KEY ? 'Yes!' : 'No!');
     
@@ -62,32 +105,14 @@ export async function processMessage(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}` // Our special key to access the AI chef
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
         messages: [
           {
             role: "system",
-            content: `You are a potential customer in this scenario: ${chefInstructions[currentScenario]}
-                     
-                     Conversation stage (${messageCount} messages):
-                     ${messageCount <= 3 ? '- Early: Be polite but confused' :
-                       messageCount <= 6 ? '- Middle: Show mild resistance' :
-                       messageCount <= 10 ? '- Late: Growing impatient' :
-                       '- Final: Clearly annoyed'}
-                     
-                     Your personality:
-                     - Start skeptical and confused
-                     - Ask questions showing uncertainty
-                     - Use common objections like:
-                       "Need to think about it"
-                       "Not sure I need this"
-                       "Seems expensive"
-                       "Need to discuss with others"
-                       "Too busy right now"
-                     - Get more dismissive over time
-                     - Show mild irritation at persistence`
+            content: systemMessage
           },
           ...conversationHistory,
           {
@@ -98,7 +123,6 @@ export async function processMessage(
       })
     });
 
-    // Get the prepared dish (AI response) from our chef
     const data = await response.json();
     console.log('Raw chef response:', data);  // Show us EVERYTHING the chef sends
     console.log('Response status:', response.status);  // Show us if the chef accepted our order
