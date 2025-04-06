@@ -7,9 +7,26 @@ interface Message {
   isUser: boolean;
 }
 
+// Maximum number of previous messages to remember
+const MAX_MEMORY_MESSAGES = 10;
+
 // This is our main kitchen function - it takes orders and prepares responses
-export async function processMessage(userMessage: string, currentScenario: string): Promise<string> {
+export async function processMessage(
+  userMessage: string, 
+  currentScenario: string, 
+  messageCount: number,
+  previousMessages: Message[]
+): Promise<string> {
   try {
+    // Keep only recent messages to prevent memory overload
+    const recentMessages = previousMessages.slice(-MAX_MEMORY_MESSAGES);
+    
+    // Convert messages to OpenAI format
+    const conversationHistory = recentMessages.map(msg => ({
+      role: msg.isUser ? "user" : "assistant",
+      content: msg.text
+    }));
+
     // Let's check if we can see our key (just showing if it exists, not the actual key)
     console.log('Do we have a key?', process.env.NEXT_PUBLIC_OPENAI_API_KEY ? 'Yes!' : 'No!');
     
@@ -25,9 +42,28 @@ export async function processMessage(userMessage: string, currentScenario: strin
         messages: [
           {
             role: "system",
-            content: `You are an AI sales training assistant helping with the scenario: ${currentScenario}. 
-                     Provide constructive feedback and guidance on sales techniques.`
+            content: `You are a potential customer in ${currentScenario}.
+                     You have been unexpectedly approached by a salesperson.
+                     
+                     Conversation stage (${messageCount} messages):
+                     ${messageCount <= 3 ? '- Early: Be polite but confused' :
+                       messageCount <= 6 ? '- Middle: Show mild resistance' :
+                       messageCount <= 10 ? '- Late: Growing impatient' :
+                       '- Final: Clearly annoyed'}
+                     
+                     Your personality:
+                     - Start skeptical and confused
+                     - Ask questions showing uncertainty
+                     - Use common objections like:
+                       "Need to think about it"
+                       "Not sure I need this"
+                       "Seems expensive"
+                       "Need to discuss with others"
+                       "Too busy right now"
+                     - Get more dismissive over time
+                     - Show mild irritation at persistence`
           },
+          ...conversationHistory,
           {
             role: "user",
             content: userMessage

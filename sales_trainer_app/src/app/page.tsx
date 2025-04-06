@@ -139,29 +139,27 @@ const ChatArea = ({ currentScenario, scenarioMessages, updateMessages }: { curre
   // This is like our waiter taking orders to the kitchen
   const handleSendMessage = async () => {
     if (inputText.trim()) {
-      // First, show the customer's order in the chat
       const userMessage = { text: inputText.trim(), isUser: true };
       updateMessages(userMessage);
       setInputText('');
-
-      // Put up the "cooking in progress" sign
       setIsLoading(true);
 
       try {
-        // Send the order to our kitchen and wait for the response
-        const aiResponse = await processMessage(inputText, currentScenario);
-        
-        // Serve the response to the customer
+        const messageCount = messages.length;
+        const aiResponse = await processMessage(
+          inputText, 
+          currentScenario, 
+          messageCount,
+          messages
+        );
         updateMessages({ text: aiResponse, isUser: false });
       } catch (error) {
-        // If something goes wrong in the kitchen
-        console.error('Error in kitchen:', error);
+        console.error('Error:', error);
         updateMessages({ 
-          text: "Sorry, I'm having trouble processing your message right now.", 
+          text: "Sorry, I'm having trouble right now.", 
           isUser: false 
         });
       } finally {
-        // Take down the "cooking in progress" sign
         setIsLoading(false);
       }
     }
