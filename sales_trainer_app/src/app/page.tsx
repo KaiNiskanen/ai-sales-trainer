@@ -5,6 +5,7 @@ import Image from "next/image";
 import { processMessage } from '../utils/api'; // Import our kitchen function
 import ScenarioPanel from './components/ScenarioPanel';
 import ChatArea from './components/ChatArea';
+import Landing from './components/Landing';
 
 // Define a type for messages
 interface Message {
@@ -106,4 +107,14 @@ const App = () => {
   );
 };
 
-export default App;
+const HomePage = () => {
+  const [showLanding, setShowLanding] = useState(true);
+
+  const handleGetStarted = () => {
+    setShowLanding(false);
+  };
+
+  return showLanding ? <Landing onGetStarted={handleGetStarted} /> : <App />;
+};
+
+export default HomePage;
