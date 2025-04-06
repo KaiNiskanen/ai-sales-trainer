@@ -108,11 +108,12 @@ const App = () => {
 const ScenarioPanel = ({ setCurrentScenario, setFormVisible, scenarioMessages }: { setCurrentScenario: React.Dispatch<React.SetStateAction<string>>, setFormVisible: React.Dispatch<React.SetStateAction<boolean>>, scenarioMessages: ScenarioMessages }) => (
   <div className="w-1/4 bg-black text-white p-6 border-r border-gray-800">
     <h2 className="text-xl font-semibold mb-6 text-gray-100">Scenarios</h2>
-    <div className="space-y-3">
+    {/* Scrollable container for scenarios with hidden scrollbar */}
+    <div className="space-y-3 overflow-y-auto scrollbar-hide max-h-[calc(100vh-12rem)]">
       {Object.keys(scenarioMessages).map((scenario, index) => (
         <div 
           key={index}
-          className="p-4 bg-black rounded-lg border border-gray-800 hover:border-gray-600 transition-all duration-200 shadow-sm hover:shadow-md"
+          className="p-4 bg-black rounded-lg border border-gray-800 hover:border-gray-600 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
           onClick={() => setCurrentScenario(scenario)}
         >
           <h3 className="font-medium text-gray-200 mb-2">{scenario}</h3>
@@ -185,11 +186,11 @@ const ChatArea = ({ currentScenario, scenarioMessages, updateMessages }: { curre
             AI
           </div>
           <p className="bg-gray-900 p-4 rounded-2xl rounded-tl-none self-start max-w-[80%] break-words text-gray-200 shadow-sm">
-            The user is an existing customer who is interested in upgrading their current plan.
+            {scenarioMessages[currentScenario][0].text}
           </p>
         </div>
         {/* Message list - maps through messages array and renders each message */}
-        {messages.map((message: Message, index: number) => (
+        {messages.slice(1).map((message: Message, index: number) => (
           <div key={index} className="mb-4 flex items-start">
             {!message.isUser && (
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-xs font-medium mr-3 shadow-md">
