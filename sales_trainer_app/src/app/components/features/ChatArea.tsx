@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { processMessage } from '../../utils/api';
+import { processMessage } from '@/lib/utils/api';
 
 interface Message {
   text: string;

@@ -1,11 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import Image from "next/image";
-import { processMessage } from '../utils/api'; // Import our kitchen function
-import ScenarioPanel from './components/ScenarioPanel';
-import ChatArea from './components/ChatArea';
-import Landing from './components/Landing';
+import { processMessage } from '@/lib/utils/api';
+import ScenarioPanel from '@/app/components/features/ScenarioPanel';
+import ChatArea from '@/app/components/features/ChatArea';
 
 // Define a type for messages
 interface Message {
@@ -107,14 +105,4 @@ const App = () => {
   );
 };
 
-const HomePage = () => {
-  const [showLanding, setShowLanding] = useState(true);
-
-  const handleGetStarted = () => {
-    setShowLanding(false);
-  };
-
-  return showLanding ? <Landing onGetStarted={handleGetStarted} /> : <App />;
-};
-
-export default HomePage;
+export default App; 
